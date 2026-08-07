@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { StarFilled, ArrowLeftOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { useAuth } from '../context/AuthContext';
+import { message } from 'antd';
 import CheckoutModal from '../components/CheckoutModal';
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const { user } = useAuth();
 
   // Modal states
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // Temporary database of products (Real project mein yeh API ya props se aata hai)
   const productsData = [
     {
       id: '1',
@@ -85,30 +88,33 @@ export default function ProductDetail() {
     }
   ];
 
-  // ID ke mutabiq product find karo
   const product = productsData.find(p => p.id === id) || productsData[0];
+
+  const handleBuyNowClick = () => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    setIsCheckoutOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-body)] py-16 px-6">
       <div className="max-w-6xl mx-auto space-y-8">
         
-        {/* Back Link */}
         <Link to="/shop" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[var(--accent-blue)] hover:underline">
           <ArrowLeftOutlined /> Back to Shop
         </Link>
 
-        {/* Product Details Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-[var(--bg-surface)] border border-[var(--border-color)] p-8 md:p-12 rounded-3xl shadow-2xl items-center">
           
-          {/* Product Image */}
           <div className="relative h-96 md:h-[450px] rounded-2xl overflow-hidden bg-zinc-950 border border-[var(--border-color)]">
             <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-            <span className="absolute top-4 left-4 bg-[var(--bg-main)]/80 backdrop-blur-md text-[var(--accent-blue)] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-[var(--border-color)]">
+            <span className="absolute top-4 left-4 bg-[var(--bg-main)]/85 backdrop-blur-md text-[var(--accent-blue)] text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full border border-[var(--border-color)]">
               {product.category}
             </span>
           </div>
 
-          {/* Product Info */}
           <div className="space-y-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -127,7 +133,6 @@ export default function ProductDetail() {
               {product.description}
             </p>
 
-            {/* Fragrance Notes Box */}
             <div className="bg-[var(--bg-main)] border border-[var(--border-color)] p-5 rounded-2xl space-y-2 text-xs">
               <p className="font-bold text-[var(--text-heading)] uppercase tracking-wider mb-2">Fragrance Notes:</p>
               <p><strong className="text-[var(--accent-blue)]">Top Notes:</strong> {product.topNotes}</p>
@@ -135,9 +140,8 @@ export default function ProductDetail() {
               <p><strong className="text-[var(--accent-blue)]">Base Notes:</strong> {product.baseNotes}</p>
             </div>
 
-            {/* Buy Now Button jo Checkout Popup kholega */}
             <button 
-              onClick={() => setIsCheckoutOpen(true)}
+              onClick={handleBuyNowClick}
               className="w-full py-4 bg-[var(--accent-blue)] hover:bg-[var(--accent-blue-hover)] text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl cursor-pointer active:scale-95 flex items-center justify-center gap-2"
             >
               <ThunderboltOutlined /> Proceed To Buy Now
@@ -148,12 +152,39 @@ export default function ProductDetail() {
 
       </div>
 
-      {/* Checkout Modal Popup */}
+      {/* Checkout Modal */}
       <CheckoutModal 
         isOpen={isCheckoutOpen} 
         onClose={() => setIsCheckoutOpen(false)} 
         selectedProduct={product} 
       />
+
+      {/* Custom Sign-In Popup */}
+      {isAuthModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[var(--bg-surface)] border border-[var(--border-color)] p-8 rounded-3xl max-w-md w-full space-y-6 shadow-2xl text-center">
+            <h2 className="text-2xl font-black uppercase text-[var(--text-heading)]">Sign In Required</h2>
+            <p className="text-xs text-[var(--text-muted)]">Please use the **Sign In** button in the top navigation bar to access your account and complete your purchase.</p>
+            <div className="flex gap-4">
+              <button 
+                onClick={() => {
+                  setIsAuthModalOpen(false);
+                  message.info("Please click the 'Sign In' button on the top right of the navbar.");
+                }}
+                className="flex-1 py-3 bg-[var(--accent-blue)] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+              >
+                Got It
+              </button>
+              <button 
+                onClick={() => setIsAuthModalOpen(false)}
+                className="flex-1 py-3 bg-zinc-800 text-zinc-300 text-xs font-bold uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

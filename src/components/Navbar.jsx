@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, User, Menu, X, LogOut, Mail, Lock, ArrowRight, ChevronDown, Sparkles, Flame, Crown, Compass } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { Dropdown, Avatar, message } from 'antd';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../config/firebase';
 
 export default function Navbar() {
   const { user, logoutUser } = useAuth();
+  const { cart = [] } = useCart();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
@@ -96,7 +98,6 @@ export default function Navbar() {
                         <Crown size={13} /> Exclusive Lines
                       </div>
                       
-                      {/* Direct React Router Link elements */}
                       <Link 
                         to="/shop?category=Oud%20%26%20Woody" 
                         onClick={() => setIsMegaMenuOpen(false)}
@@ -169,8 +170,8 @@ export default function Navbar() {
               )}
             </div>
 
-            <Link to="/shop" className="hover:text-zinc-100 transition-colors relative py-2">Best Sellers</Link>
-            <Link to="/shop" className="hover:text-zinc-100 transition-colors relative py-2">Legacy</Link>
+            <Link to="/bestSellers" className="hover:text-zinc-100 transition-colors relative py-2">Best Sellers</Link>
+            <Link to="/legacy" className="hover:text-zinc-100 transition-colors relative py-2">Legacy</Link>
           </div>
 
           {/* Right Action Icons */}
@@ -180,7 +181,7 @@ export default function Navbar() {
             <Link to="/cart" className="relative p-2.5 bg-zinc-900/80 border border-zinc-800 hover:border-sky-500/50 rounded-2xl text-zinc-300 hover:text-sky-400 transition-all shadow-inner">
               <ShoppingBag size={18} />
               <span className="absolute -top-1.5 -right-1.5 bg-sky-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-lg">
-                0
+                {cart.length}
               </span>
             </Link>
 

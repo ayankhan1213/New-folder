@@ -2,10 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { StarFilled, ShoppingCartOutlined, SearchOutlined } from '@ant-design/icons';
 import CheckoutModal from '../components/CheckoutModal';
+import { useCart } from '../context/CartContext';
+import { message } from 'antd';
 
 export default function Shop() {
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get('category');
+
+  const { addToCart } = useCart();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,56 +27,53 @@ export default function Shop() {
     }
   }, [categoryParam]);
 
-  const products = [
-    {
-      id: 1,
-      name: 'Royal Oud Elixir',
-      category: 'Oud & Woody',
-      price: 'Rs. 1,150',
-      rating: '4.9',
-      image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80',
-    },
-    {
-      id: 2,
-      name: 'Noir Velvet Scent',
-      category: 'Unisex Luxury',
-      price: 'Rs. 950',
-      rating: '4.8',
-      image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80',
-    },
-    {
-      id: 3,
-      name: 'Golden Amber Essence',
-      category: 'Signature Oriental',
-      price: 'Rs. 1,050',
-      rating: '5.0',
-      image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80',
-    },
-    {
-      id: 4,
-      name: 'Azure Blue Intense',
-      category: "Men's Signature",
-      price: 'Rs. 990',
-      rating: '4.7',
-      image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80',
-    },
-    {
-      id: 5,
-      name: 'Rose Petal Bloom',
-      category: "Women's Elegance",
-      price: 'Rs. 1,100',
-      rating: '4.9',
-      image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80',
-    },
-    {
-      id: 6,
-      name: 'Midnight Smoke Oud',
-      category: 'Oud & Woody',
-      price: 'Rs. 1,200',
-      rating: '5.0',
-      image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80',
-    },
+  // Different unique images array for variety
+  const productImages = [
+    "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1626017041446-90d97755ed8d?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1610465299996-30f240ac2b1c?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1583485088034-727b51e42d1b?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1570774306634-118816c7e3f8?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1555529721-729017646a82?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1597354930335-515155f9a46f?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1585257930869-c09530438c6d?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1612903333333-3000627e7f6d?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1587033411330-d29871790400?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1592914610303-f093f4e2439c?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1617392238714-8848d5d4d38c?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1595425932502-3d8b584d436a?auto=format&fit=crop&w=600&q=80",
+    "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=600&q=80"
   ];
+
+  // Generate 20 unique products per category with distinct names and unique images
+  const generateProducts = () => {
+    const cats = ['Oud & Woody', "Men's Signature", "Women's Elegance", 'Unisex Luxury', 'Signature Oriental'];
+    let allProducts = [];
+    let idCounter = 1;
+
+    cats.forEach(cat => {
+      for (let i = 1; i <= 20; i++) {
+        allProducts.push({
+          id: idCounter,
+          name: `${cat.split(' ')[0]} Edition ${i}`,
+          category: cat,
+          price: `Rs. ${900 + ((i * 25) % 500)}`,
+          rating: (4.5 + (i % 5) * 0.1).toFixed(1),
+          image: productImages[(idCounter - 1) % productImages.length],
+        });
+        idCounter++;
+      }
+    });
+    return allProducts;
+  };
+
+  const products = generateProducts();
 
   const categories = ['All', 'Oud & Woody', "Men's Signature", "Women's Elegance", 'Unisex Luxury', 'Signature Oriental'];
 
@@ -89,7 +90,7 @@ export default function Shop() {
         {/* Header Title */}
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <span className="text-[10px] font-extrabold uppercase tracking-[0.3em] text-[var(--accent-blue)] bg-[var(--accent-blue-soft)] px-3 py-1 rounded-full border border-[var(--accent-blue)]/20">
-            Full Catalog
+            Full Catalog ({products.length} Fragrances)
           </span>
           <h1 className="text-4xl md:text-5xl font-black uppercase tracking-wider text-[var(--text-heading)]">
             Explore Collections
@@ -171,7 +172,10 @@ export default function Shop() {
                       Details
                     </Link>
                     <button 
-                      onClick={() => alert(`${product.name} added to cart!`)}
+                      onClick={() => {
+                        addToCart(product);
+                        message.success(`${product.name} added to cart!`);
+                      }}
                       className="px-4 py-3 bg-[var(--accent-blue)] hover:bg-[var(--accent-blue-hover)] text-white text-xs rounded-xl transition-all shadow-md flex items-center justify-center cursor-pointer"
                     >
                       <ShoppingCartOutlined className="text-sm" />

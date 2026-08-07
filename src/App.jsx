@@ -2,7 +2,8 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-
+import Shop from './pages/Shop';
+import ProductDetail from './pages/ProductDetail';
 // Agar Shop ya Profile pages hain toh unko bhi yahan import kar sakte ho
 
 const App = () => {
@@ -14,7 +15,8 @@ const App = () => {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
           {/* Protected Routes placeholder */}
           {/* <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} /> */}
         </Routes>

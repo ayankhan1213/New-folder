@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, User, Menu, X, LogOut, Mail, Lock, ArrowRight, ChevronDown, Sparkles, Flame, Crown, Compass } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Dropdown, Avatar, message } from 'antd';
@@ -8,7 +8,9 @@ import { auth } from '../config/firebase';
 
 export default function Navbar() {
   const { user, logoutUser } = useAuth();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMegaMenuOpen, setIsMegaMenuOpen] = useState(false);
   
   // Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -73,79 +75,102 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-8 text-xs font-bold uppercase tracking-[0.2em] text-zinc-400">
             <Link to="/" className="hover:text-zinc-100 transition-colors relative py-2">Home</Link>
             
-            {/* Big Wide Mega Menu for Shop */}
-            <div className="relative group py-2">
+            {/* State-controlled Mega Menu for Shop */}
+            <div 
+              className="relative py-2"
+              onMouseEnter={() => setIsMegaMenuOpen(true)}
+              onMouseLeave={() => setIsMegaMenuOpen(false)}
+            >
               <Link to="/shop" className="flex items-center gap-1.5 hover:text-zinc-100 transition-colors">
-                Shop Collections <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-300" />
+                Shop Collections <ChevronDown size={14} className={`transition-transform duration-300 ${isMegaMenuOpen ? 'rotate-180' : ''}`} />
               </Link>
 
-              {/* Large Expandable Dropdown Container */}
-              <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 w-[600px] opacity-0 translate-y-4 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out">
-                <div className="bg-zinc-900/95 backdrop-blur-2xl border border-zinc-800 rounded-3xl p-6 shadow-2xl grid grid-cols-2 gap-4">
-                  
-                  {/* Left Categories Grid */}
-                  <div className="space-y-2">
-                    <div className="text-[10px] font-extrabold tracking-widest text-sky-400 px-3 py-1 bg-sky-500/10 rounded-lg flex items-center gap-1.5 mb-3">
-                      <Crown size={13} /> Exclusive Lines
-                    </div>
+              {/* Dropdown Box */}
+              {isMegaMenuOpen && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-[600px] z-50">
+                  <div className="bg-zinc-900/95 backdrop-blur-2xl border border-zinc-800 rounded-3xl p-6 shadow-2xl grid grid-cols-2 gap-4">
                     
-                    <Link to="/shop?category=oud" className="p-3 rounded-2xl hover:bg-zinc-800/80 text-zinc-300 hover:text-sky-400 transition-all flex items-start gap-3 group/item">
-                      <div className="p-2 bg-zinc-800 rounded-xl group-hover/item:bg-sky-500/20 text-sky-400 transition-colors">
-                        <Flame size={16} />
+                    {/* Left Categories Grid */}
+                    <div className="space-y-2">
+                      <div className="text-[10px] font-extrabold tracking-widest text-sky-400 px-3 py-1 bg-sky-500/10 rounded-lg flex items-center gap-1.5 mb-3">
+                        <Crown size={13} /> Exclusive Lines
                       </div>
-                      <div>
-                        <div className="text-xs font-bold text-zinc-100 group-hover/item:text-sky-400">Royal Oud & Woody</div>
-                        <div className="text-[10px] text-zinc-500 normal-case font-normal mt-0.5">Deep, smoky and long-lasting oriental notes.</div>
-                      </div>
-                    </Link>
+                      
+                      {/* Direct React Router Link elements */}
+                      <Link 
+                        to="/shop?category=Oud%20%26%20Woody" 
+                        onClick={() => setIsMegaMenuOpen(false)}
+                        className="p-3 rounded-2xl hover:bg-zinc-800/80 text-zinc-300 hover:text-sky-400 transition-all flex items-start gap-3 group/item cursor-pointer block"
+                      >
+                        <div className="p-2 bg-zinc-800 rounded-xl group-hover/item:bg-sky-500/20 text-sky-400 transition-colors">
+                          <Flame size={16} />
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-zinc-100 group-hover/item:text-sky-400">Royal Oud & Woody</div>
+                          <div className="text-[10px] text-zinc-500 normal-case font-normal mt-0.5">Deep, smoky and long-lasting oriental notes.</div>
+                        </div>
+                      </Link>
 
-                    <Link to="/shop?category=men" className="p-3 rounded-2xl hover:bg-zinc-800/80 text-zinc-300 hover:text-sky-400 transition-all flex items-start gap-3 group/item">
-                      <div className="p-2 bg-zinc-800 rounded-xl group-hover/item:bg-sky-500/20 text-sky-400 transition-colors">
-                        <Compass size={16} />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-zinc-100 group-hover/item:text-sky-400">Men's Signature</div>
-                        <div className="text-[10px] text-zinc-500 normal-case font-normal mt-0.5">Bold, masculine and charismatic fragrances.</div>
-                      </div>
-                    </Link>
+                      <Link 
+                        to="/shop?category=Men%27s%20Signature" 
+                        onClick={() => setIsMegaMenuOpen(false)}
+                        className="p-3 rounded-2xl hover:bg-zinc-800/80 text-zinc-300 hover:text-sky-400 transition-all flex items-start gap-3 group/item cursor-pointer block"
+                      >
+                        <div className="p-2 bg-zinc-800 rounded-xl group-hover/item:bg-sky-500/20 text-sky-400 transition-colors">
+                          <Compass size={16} />
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-zinc-100 group-hover/item:text-sky-400">Men's Signature</div>
+                          <div className="text-[10px] text-zinc-500 normal-case font-normal mt-0.5">Bold, masculine and charismatic fragrances.</div>
+                        </div>
+                      </Link>
+                    </div>
+
+                    <div className="space-y-2 pt-8">
+                      <Link 
+                        to="/shop?category=Women%27s%20Elegance" 
+                        onClick={() => setIsMegaMenuOpen(false)}
+                        className="p-3 rounded-2xl hover:bg-zinc-800/80 text-zinc-300 hover:text-sky-400 transition-all flex items-start gap-3 group/item cursor-pointer block"
+                      >
+                        <div className="p-2 bg-zinc-800 rounded-xl group-hover/item:bg-sky-500/20 text-sky-400 transition-colors">
+                          <Sparkles size={16} />
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-zinc-100 group-hover/item:text-sky-400">Women's Elegance</div>
+                          <div className="text-[10px] text-zinc-500 normal-case font-normal mt-0.5">Floral, sweet and mesmerizing luxury blends.</div>
+                        </div>
+                      </Link>
+
+                      <Link 
+                        to="/shop?category=Unisex%20Luxury" 
+                        onClick={() => setIsMegaMenuOpen(false)}
+                        className="p-3 rounded-2xl hover:bg-zinc-800/80 text-zinc-300 hover:text-sky-400 transition-all flex items-start gap-3 group/item cursor-pointer block"
+                      >
+                        <div className="p-2 bg-zinc-800 rounded-xl group-hover/item:bg-sky-500/20 text-sky-400 transition-colors">
+                          <Crown size={16} />
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold text-zinc-100 group-hover/item:text-sky-400">Unisex Luxury</div>
+                          <div className="text-[10px] text-zinc-500 normal-case font-normal mt-0.5">Versatile modern scents crafted for everyone.</div>
+                        </div>
+                      </Link>
+                    </div>
+
+                    {/* Bottom Banner inside Mega Menu */}
+                    <div className="col-span-2 mt-2 pt-4 border-t border-zinc-800 flex items-center justify-between px-2">
+                      <span className="text-[11px] text-zinc-400 font-medium">Looking for custom gift boxes?</span>
+                      <Link to="/shop" onClick={() => setIsMegaMenuOpen(false)} className="text-xs text-sky-400 font-bold hover:underline flex items-center gap-1">
+                        View Gift Sets <ArrowRight size={12} />
+                      </Link>
+                    </div>
+
                   </div>
-
-                  <div className="space-y-2 pt-8">
-                    <Link to="/shop?category=women" className="p-3 rounded-2xl hover:bg-zinc-800/80 text-zinc-300 hover:text-sky-400 transition-all flex items-start gap-3 group/item">
-                      <div className="p-2 bg-zinc-800 rounded-xl group-hover/item:bg-sky-500/20 text-sky-400 transition-colors">
-                        <Sparkles size={16} />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-zinc-100 group-hover/item:text-sky-400">Women's Elegance</div>
-                        <div className="text-[10px] text-zinc-500 normal-case font-normal mt-0.5">Floral, sweet and mesmerizing luxury blends.</div>
-                      </div>
-                    </Link>
-
-                    <Link to="/shop?category=unisex" className="p-3 rounded-2xl hover:bg-zinc-800/80 text-zinc-300 hover:text-sky-400 transition-all flex items-start gap-3 group/item">
-                      <div className="p-2 bg-zinc-800 rounded-xl group-hover/item:bg-sky-500/20 text-sky-400 transition-colors">
-                        <Crown size={16} />
-                      </div>
-                      <div>
-                        <div className="text-xs font-bold text-zinc-100 group-hover/item:text-sky-400">Unisex Masterpieces</div>
-                        <div className="text-[10px] text-zinc-500 normal-case font-normal mt-0.5">Versatile modern scents crafted for everyone.</div>
-                      </div>
-                    </Link>
-                  </div>
-
-                  {/* Bottom Banner inside Mega Menu */}
-                  <div className="col-span-2 mt-2 pt-4 border-t border-zinc-800 flex items-center justify-between px-2">
-                    <span className="text-[11px] text-zinc-400 font-medium">Looking for custom gift boxes?</span>
-                    <Link to="/shop?filter=bundles" className="text-xs text-sky-400 font-bold hover:underline flex items-center gap-1">
-                      View Gift Sets <ArrowRight size={12} />
-                    </Link>
-                  </div>
-
                 </div>
-              </div>
+              )}
             </div>
 
-            <Link to="/best-sellers" className="hover:text-zinc-100 transition-colors relative py-2">Best Sellers</Link>
-            <Link to="/about" className="hover:text-zinc-100 transition-colors relative py-2">Legacy</Link>
+            <Link to="/shop" className="hover:text-zinc-100 transition-colors relative py-2">Best Sellers</Link>
+            <Link to="/shop" className="hover:text-zinc-100 transition-colors relative py-2">Legacy</Link>
           </div>
 
           {/* Right Action Icons */}
@@ -191,6 +216,57 @@ export default function Navbar() {
             </button>
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-zinc-900 border-b border-zinc-800 px-6 py-6 space-y-4">
+            <Link 
+              to="/" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-xs font-bold uppercase tracking-widest text-zinc-300 hover:text-sky-400"
+            >
+              Home
+            </Link>
+            <div className="space-y-2 pt-2 border-t border-zinc-800">
+              <div className="text-[10px] font-extrabold uppercase tracking-widest text-sky-400">Shop Categories</div>
+              <Link 
+                to="/shop?category=Oud%20%26%20Woody" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="block pl-3 text-xs text-zinc-400 hover:text-sky-400 py-1"
+              >
+                Royal Oud & Woody
+              </Link>
+              <Link 
+                to="/shop?category=Men%27s%20Signature" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="block pl-3 text-xs text-zinc-400 hover:text-sky-400 py-1"
+              >
+                Men's Signature
+              </Link>
+              <Link 
+                to="/shop?category=Women%27s%20Elegance" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="block pl-3 text-xs text-zinc-400 hover:text-sky-400 py-1"
+              >
+                Women's Elegance
+              </Link>
+              <Link 
+                to="/shop?category=Unisex%20Luxury" 
+                onClick={() => setMobileMenuOpen(false)} 
+                className="block pl-3 text-xs text-zinc-400 hover:text-sky-400 py-1"
+              >
+                Unisex Luxury
+              </Link>
+            </div>
+            <Link 
+              to="/shop" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-xs font-bold uppercase tracking-widest text-zinc-300 hover:text-sky-400 pt-2 border-t border-zinc-800"
+            >
+              View All Shop
+            </Link>
+          </div>
+        )}
       </nav>
 
       {/* POPUP MODAL FOR LOGIN / SIGNUP */}
@@ -227,7 +303,7 @@ export default function Navbar() {
                     onChange={(e) => setName(e.target.value)}
                     required
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-zinc-100 focus:border-sky-500 outline-none"
-                    placeholder="Enter your Email"
+                    placeholder="Enter your Name"
                   />
                 </div>
               )}
